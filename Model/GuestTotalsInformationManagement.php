@@ -15,6 +15,11 @@ class GuestTotalsInformationManagement implements \Punchout2Go\Punchout\Api\Gues
     protected $quoteIdMaskFactory;
 
     /**
+     * @var \Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask
+     */
+    protected $quoteIdMaskResource;
+
+    /**
      * @var \Magento\Checkout\Api\TotalsInformationManagementInterface
      */
     protected $totalsInformationManagement;
@@ -23,13 +28,16 @@ class GuestTotalsInformationManagement implements \Punchout2Go\Punchout\Api\Gues
      * GuestTotalsInformationManagement constructor.
      * @param \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory
      * @param \Punchout2Go\Punchout\Api\TotalsInformationManagementInterface $totalsInformationManagement
+     * @param \Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask $quoteIdMaskResource
      */
     public function __construct(
         \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
-        \Punchout2Go\Punchout\Api\TotalsInformationManagementInterface $totalsInformationManagement
+        \Punchout2Go\Punchout\Api\TotalsInformationManagementInterface $totalsInformationManagement,
+        \Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask $quoteIdMaskResource
     ) {
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->totalsInformationManagement = $totalsInformationManagement;
+        $this->quoteIdMaskResource = $quoteIdMaskResource;
     }
 
     /**
@@ -42,7 +50,8 @@ class GuestTotalsInformationManagement implements \Punchout2Go\Punchout\Api\Gues
         \Magento\Checkout\Api\Data\TotalsInformationInterface $addressInformation
     ): string {
         /** @var $quoteIdMask \Magento\Quote\Model\QuoteIdMask */
-        $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
+        $quoteIdMask = $this->quoteIdMaskFactory->create();
+        $this->quoteIdMaskResource->load($quoteIdMask, $cartId, 'masked_id');
         $this->totalsInformationManagement->save(
             (int) $quoteIdMask->getQuoteId(),
             $addressInformation
